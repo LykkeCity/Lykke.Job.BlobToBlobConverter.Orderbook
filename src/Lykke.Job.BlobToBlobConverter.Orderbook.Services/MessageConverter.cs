@@ -49,12 +49,12 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
 
             var orderbook = new OutOrderbook
             {
-                AssetPair = book.AssetPair,
+                AssetPairId = book.AssetPair,
                 IsBuy = book.IsBuy,
                 Timestamp = DateTimeConverter.Convert(book.Timestamp),
                 BestPrice = bestPrice,
             };
-            result[_mainContainer].Add(orderbook.ToJson());
+            result[_mainContainer].Add(orderbook.ToString());
         }
     }
 }
