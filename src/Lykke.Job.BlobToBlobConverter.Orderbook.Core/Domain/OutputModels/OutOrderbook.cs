@@ -10,12 +10,12 @@
 
         public decimal BestPrice { get; set; }
 
-        public override string ToString()
+        public string GetValuesString()
         {
-            return $"{nameof(AssetPairId)},{AssetPairId},{nameof(IsBuy)},{IsBuy},{nameof(Timestamp)},{Timestamp},{nameof(BestPrice)},{BestPrice}";
+            return $"{AssetPairId},{IsBuy},{Timestamp},{BestPrice}";
         }
 
-        public static string GetColumns()
+        public static string GetColumnsString()
         {
             return $"{nameof(AssetPairId)},{nameof(IsBuy)},{nameof(Timestamp)},{nameof(BestPrice)}";
         }

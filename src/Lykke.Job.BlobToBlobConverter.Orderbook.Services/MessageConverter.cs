@@ -39,7 +39,7 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
         {
             var result = new Dictionary<string, string>
             {
-                { _mainContainer, OutOrderbook.GetColumns() },
+                { _mainContainer, OutOrderbook.GetColumnsString() },
             };
             return result;
         }
@@ -63,7 +63,7 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                 Timestamp = DateTimeConverter.Convert(book.Timestamp),
                 BestPrice = bestPrice,
             };
-            result[_mainContainer].Add(orderbook.ToString());
+            result[_mainContainer].Add(orderbook.GetValuesString());
         }
     }
 }
