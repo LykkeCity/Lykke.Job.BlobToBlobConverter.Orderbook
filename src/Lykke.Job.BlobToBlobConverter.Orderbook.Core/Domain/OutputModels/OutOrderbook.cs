@@ -14,5 +14,10 @@
         {
             return $"{nameof(AssetPairId)},{AssetPairId},{nameof(IsBuy)},{IsBuy},{nameof(Timestamp)},{Timestamp},{nameof(BestPrice)},{BestPrice}";
         }
+
+        public static string GetColumns()
+        {
+            return $"{nameof(AssetPairId)},{nameof(IsBuy)},{nameof(Timestamp)},{nameof(BestPrice)}";
+        }
     }
 }

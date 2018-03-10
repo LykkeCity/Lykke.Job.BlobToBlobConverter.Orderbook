@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Net;
-using Lykke.Job.BlobToBlobConverter.Orderbook.Core.Services;
-using Lykke.Job.BlobToBlobConverter.Orderbook.Models;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Lykke.Common.Api.Contract.Responses;
+using Lykke.Job.BlobToBlobConverter.Orderbook.Core.Services;
 
 namespace Lykke.Job.BlobToBlobConverter.Orderbook.Controllers
 {
