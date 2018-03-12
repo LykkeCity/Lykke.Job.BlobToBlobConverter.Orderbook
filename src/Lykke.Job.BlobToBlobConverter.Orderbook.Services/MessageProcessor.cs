@@ -6,33 +6,37 @@ using Lykke.Job.BlobToBlobConverter.Common.Abstractions;
 using Lykke.Job.BlobToBlobConverter.Common.Helpers;
 using Lykke.Job.BlobToBlobConverter.Orderbook.Core.Domain.InputModels;
 using Lykke.Job.BlobToBlobConverter.Orderbook.Core.Domain.OutputModels;
+using System;
+using System.Threading.Tasks;
 
 namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
 {
-    public class MessageConverter : IMessageConverter
+    public class MessageProcessor : IMessageProcessor
     {
         private const string _mainContainer = "orderbook";
+        private const int _maxBatchCount = 1000000;
 
         private readonly ILog _log;
 
-        public MessageConverter(ILog log)
+        public MessageProcessor(ILog log)
         {
             _log = log;
         }
 
-        public Dictionary<string, List<string>> Convert(IEnumerable<byte[]> messages)
+        public async Task ProcessAsync(IEnumerable<byte[]> messages, Func<string, ICollection<string>, Task> processTask)
         {
-            var result = new Dictionary<string, List<string>>
-            {
-                { _mainContainer, new List<string>() },
-            };
+            var list = new List<string>();
 
             foreach (var message in messages)
             {
-                AddConvertedMessage(message, result);
-            }
+                AddConvertedMessage(message, list);
 
-            return result;
+                if (list.Count >= _maxBatchCount)
+                {
+                    await processTask(_mainContainer, list);
+                    list.Clear();
+                }
+            }
         }
 
         public Dictionary<string, string> GetMappingStructure()
@@ -44,11 +48,11 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
             return result;
         }
 
-        private void AddConvertedMessage(byte[] message, Dictionary<string, List<string>> result)
+        private void AddConvertedMessage(byte[] message, List<string> list)
         {
             var book = JsonDeserializer.Deserialize<InOrderBook>(message);
             if (!book.IsValid())
-                _log.WriteWarning(nameof(MessageConverter), nameof(Convert), $"Orderbook {book.ToJson()} is invalid!");
+                _log.WriteWarning(nameof(MessageProcessor), nameof(Convert), $"Orderbook {book.ToJson()} is invalid!");
 
             decimal bestPrice = 0;
             if (book.Prices != null && book.Prices.Count > 0)
@@ -63,7 +67,7 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                 Timestamp = DateTimeConverter.Convert(book.Timestamp),
                 BestPrice = bestPrice,
             };
-            result[_mainContainer].Add(orderbook.GetValuesString());
+            list.Add(orderbook.GetValuesString());
         }
     }
 }
