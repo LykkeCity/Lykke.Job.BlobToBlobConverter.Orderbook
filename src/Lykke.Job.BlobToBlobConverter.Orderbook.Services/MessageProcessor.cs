@@ -37,6 +37,9 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                     list.Clear();
                 }
             }
+
+            if (list.Count >= 0)
+                await processTask(_mainContainer, list);
         }
 
         public Dictionary<string, string> GetMappingStructure()
