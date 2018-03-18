@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
 {
-    public class MessageProcessor : IMessageProcessor
+    public class MessageProcessor : IMessageProcessor<InOrderBook>
     {
         private const string _mainContainer = "orderbook";
         private const int _maxBatchCount = 1000000;
@@ -23,7 +23,30 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
             _log = log;
         }
 
-        public async Task ProcessAsync(IEnumerable<byte[]> messages, Func<string, ICollection<string>, Task> processTask)
+        public Dictionary<string, string> GetMappingStructure()
+        {
+            var result = new Dictionary<string, string>
+            {
+                { _mainContainer, OutOrderbook.GetColumnsString() },
+            };
+            return result;
+        }
+
+        public bool TryDeserialize(byte[] data, out InOrderBook result)
+        {
+            try
+            {
+                result = JsonDeserializer.Deserialize<InOrderBook>(data);
+                return true;
+            }
+            catch (Exception)
+            {
+                result = null;
+                return false;
+            }
+        }
+
+        public async Task ProcessAsync(IEnumerable<InOrderBook> messages, Func<string, IEnumerable<string>, Task> processTask)
         {
             var list = new List<string>();
 
@@ -42,18 +65,8 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                 await processTask(_mainContainer, list);
         }
 
-        public Dictionary<string, string> GetMappingStructure()
+        private void AddConvertedMessage(InOrderBook book, List<string> list)
         {
-            var result = new Dictionary<string, string>
-            {
-                { _mainContainer, OutOrderbook.GetColumnsString() },
-            };
-            return result;
-        }
-
-        private void AddConvertedMessage(byte[] message, List<string> list)
-        {
-            var book = JsonDeserializer.Deserialize<InOrderBook>(message);
             if (!book.IsValid())
                 _log.WriteWarning(nameof(MessageProcessor), nameof(Convert), $"Orderbook {book.ToJson()} is invalid!");
 
