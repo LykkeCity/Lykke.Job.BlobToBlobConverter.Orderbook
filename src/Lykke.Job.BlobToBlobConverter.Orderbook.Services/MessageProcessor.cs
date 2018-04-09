@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Common;
 using Common.Log;
 using Lykke.Job.BlobToBlobConverter.Common.Abstractions;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
 {
+    [UsedImplicitly]
     public class MessageProcessor : IMessageProcessor<InOrderBook>
     {
         private const string _mainContainer = "orderbook";
