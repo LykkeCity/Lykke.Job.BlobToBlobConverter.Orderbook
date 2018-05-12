@@ -13,12 +13,15 @@ using System.Threading.Tasks;
 namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
 {
     [UsedImplicitly]
-    public class MessageProcessor : IMessageProcessor<InOrderBook>
+    public class MessageProcessor : IMessageProcessor
     {
         private const string _mainContainer = "orderbook";
         private const int _maxBatchCount = 1000000;
 
         private readonly ILog _log;
+
+        private List<string> _list;
+        private Func<string, List<string>, Task> _messagesHandler;
 
         public MessageProcessor(ILog log)
         {
@@ -34,37 +37,33 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
             return result;
         }
 
-        public bool TryDeserialize(byte[] data, out InOrderBook result)
+        public void StartBlobProcessing(Func<string, List<string>, Task> messagesHandler)
         {
-            try
-            {
-                result = JsonDeserializer.Deserialize<InOrderBook>(data);
-                return true;
-            }
-            catch (Exception)
-            {
-                result = null;
-                return false;
-            }
+            _list = new List<string>();
+            _messagesHandler = messagesHandler;
         }
 
-        public async Task ProcessAsync(IEnumerable<InOrderBook> messages, Func<string, IEnumerable<string>, Task> processTask)
+        public async Task FinishBlobProcessingAsync()
         {
-            var list = new List<string>();
+            if (_list.Count > 0)
+                await _messagesHandler(_mainContainer, _list);
+        }
 
-            foreach (var message in messages)
+        public async Task<bool> TryProcessMessageAsync(byte[] data)
+        {
+            bool result = JsonDeserializer.TryDeserialize(data, out InOrderBook orderbook);
+            if (!result)
+                return false;
+
+            AddConvertedMessage(orderbook, _list);
+
+            if (_list.Count >= _maxBatchCount)
             {
-                AddConvertedMessage(message, list);
-
-                if (list.Count >= _maxBatchCount)
-                {
-                    await processTask(_mainContainer, list);
-                    list.Clear();
-                }
+                await _messagesHandler(_mainContainer, _list);
+                _list.Clear();
             }
 
-            if (list.Count >= 0)
-                await processTask(_mainContainer, list);
+            return true;
         }
 
         private void AddConvertedMessage(InOrderBook book, List<string> list)
