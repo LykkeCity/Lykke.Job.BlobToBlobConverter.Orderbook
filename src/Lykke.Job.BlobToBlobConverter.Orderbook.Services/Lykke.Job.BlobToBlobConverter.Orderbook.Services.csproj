@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="6.7.0" />
-    <PackageReference Include="Lykke.Job.BlobToBlobConverter.Common" Version="14.0.0" />
+    <PackageReference Include="Lykke.Job.BlobToBlobConverter.Common" Version="15.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Job.BlobToBlobConverter.Orderbook.Core\Lykke.Job.BlobToBlobConverter.Orderbook.Core.csproj" />

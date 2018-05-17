@@ -55,6 +55,10 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Modules
                 .As<IMessageProcessor>()
                 .SingleInstance();
 
+            builder.RegisterType<StructureBuilder>()
+                .As<IStructureBuilder>()
+                .SingleInstance();
+
             builder.RegisterType<BlobProcessor>()
                 .As<IBlobProcessor>()
                 .SingleInstance();
