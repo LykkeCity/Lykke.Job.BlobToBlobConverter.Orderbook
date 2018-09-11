@@ -10,13 +10,11 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
     {
         public static string MainContainer => "orderbook";
 
-        public Dictionary<string, string> GetMappingStructure()
+        public bool IsDynamicStructure => false;
+
+        public bool IsAllBlobsReprocessingRequired(TablesStructure currentStructure)
         {
-            var result = new Dictionary<string, string>
-            {
-                { MainContainer, OutOrderbook.GetColumnsString() },
-            };
-            return result;
+            return false;
         }
 
         public TablesStructure GetTablesStructure()
