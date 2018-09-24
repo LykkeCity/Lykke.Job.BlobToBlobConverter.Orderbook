@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
 {
     [UsedImplicitly]
-    public class MessageProcessor : IMessageProcessor
+    public class MessageProcessor : IMessageProcessor, IMessageTypeResolver
     {
         private const int _maxBatchCount = 1000000;
 
@@ -39,14 +39,9 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                 await _messagesHandler(StructureBuilder.MainContainer, _list);
         }
 
-        public async Task<bool> TryProcessMessageAsync(byte[] data)
+        public async Task ProcessMessageAsync(object obj)
         {
-            bool result = JsonDeserializer.TryDeserialize(
-                data,
-                _log,
-                out InOrderBook orderbook);
-            if (!result)
-                return false;
+            var orderbook = obj as InOrderBook;
 
             AddConvertedMessage(orderbook, _list);
 
@@ -55,8 +50,6 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                 await _messagesHandler(StructureBuilder.MainContainer, _list);
                 _list.Clear();
             }
-
-            return true;
         }
 
         private void AddConvertedMessage(InOrderBook book, List<string> list)
@@ -78,6 +71,11 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                 BestPrice = bestPrice,
             };
             list.Add(orderbook.GetValuesString());
+        }
+
+        public Task<Type> ResolveMessageTypeAsync()
+        {
+            return Task.FromResult(typeof(InOrderBook));
         }
     }
 }
