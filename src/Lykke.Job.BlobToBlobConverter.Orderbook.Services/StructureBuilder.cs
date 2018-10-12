@@ -27,7 +27,7 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                     {
                         TableName = "Orderbook",
                         AzureBlobFolder = MainContainer,
-                        Colums = OutOrderbook.GetStructure()
+                        Columns = OutOrderbook.GetStructure()
                             .Select(p => new ColumnInfo { ColumnName = p.Item1, ColumnType = p.Item2 })
                             .ToList(),
                     }
