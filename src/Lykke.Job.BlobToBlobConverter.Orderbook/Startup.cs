@@ -141,8 +141,9 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook
         {
             try
             {
-                // NOTE: Job still can recieve and process IsAlive requests here, so take care about it if you add logic here.
+                Log?.WriteMonitor("", Program.EnvInfo, "Shutting down");
 
+                // NOTE: Job still can recieve and process IsAlive requests here, so take care about it if you add logic here.
                 await ApplicationContainer.Resolve<IShutdownManager>().StopAsync();
             }
             catch (Exception ex)
