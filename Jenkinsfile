@@ -5,7 +5,7 @@ pipeline {
           steps {
             checkout([
                 $class: 'GitSCM',
-                branches: ['dev'],
+                branches: scm.branches,
                 gitTool: 'native git'
             ])
           }
