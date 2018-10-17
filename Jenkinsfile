@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    tools {
-        msbuild '.NET Core 2.1.0'
-    }
     stages {
         stage('checkout') {
           steps {
