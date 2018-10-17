@@ -3,12 +3,12 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                sh 'dotnet build --configuration Release --platform "Any CPU"'
+                sh 'dotnet build --configuration Release'
             }
         }
         stage('publish') {
             steps {
-              sh 'dotnet publish --configuration Release --platform "Any CPU" --no-restore'
+              sh 'dotnet publish --configuration Release --no-restore'
             }
         }
     }
