@@ -8,7 +8,7 @@ pipeline {
         }
         stage('test') {
             steps {
-                sh 'dotnet test --configuration Release --no-build'
+                sh 'dotnet test tests/**/*.csproj --configuration Release --no-build'
             }
         }
         stage('publish') {
