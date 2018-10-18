@@ -20,13 +20,13 @@ pipeline {
         }
         stage('publish') {
             steps {
-              sh 'dotnet publish src/' + publishproject + '/' + publishproject + '.csproj --configuration Release --no-restore --output app/' + publishproject
+              sh 'dotnet publish src/${env.publishproject}/${env.publishproject}.csproj --configuration Release --no-restore --output ${env.WORKSPACE}/app/${env.publishproject}'
             }
         }
         stage('build docker image') {
             steps{
                 script {
-                    dockerImage = docker.build(dockerimagename + ':' + dockerimagetag, 'app/' + publishproject)
+                    dockerImage = docker.build('${env.dockerimagename}:${env.dockerimagetag}', 'app/${env.publishproject}')
                 }
             }
         }
