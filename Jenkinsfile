@@ -3,7 +3,7 @@ pipeline {
             dockerimagename = 'lykkedev/lykke-job-blobtoblobconverter-orderbook'
             dockerimagetag = 'dev'
             dockercredentials = 'lykkedev'
-            procjectfilePath = 'src/Lykke.Job.BlobToBlobConverter.Orderbook/Lykke.Job.BlobToBlobConverter.Orderbook.csproj'
+            projectfilepath = 'src/Lykke.Job.BlobToBlobConverter.Orderbook/Lykke.Job.BlobToBlobConverter.Orderbook.csproj'
         }
     agent any
     stages {
@@ -20,7 +20,7 @@ pipeline {
         }
         stage('publish') {
             steps {
-              sh 'dotnet publish procjectfilePath --configuration Release --no-restore --output app'
+              sh 'dotnet publish ' + projectfilepath + ' --configuration Release --no-restore --output app'
             }
         }
         stage('Build docker image') {
