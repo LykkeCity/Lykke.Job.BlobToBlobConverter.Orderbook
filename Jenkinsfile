@@ -13,7 +13,7 @@ pipeline {
         }
         stage('publish') {
             steps {
-              sh 'dotnet publish --configuration Release --no-restore'
+              sh 'dotnet publish --configuration Release --no-restore --output app'
             }
         }
     }
