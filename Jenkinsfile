@@ -20,17 +20,17 @@ pipeline {
         }
         stage('publish') {
             steps {
-              sh 'dotnet publish src/' + projectfilepath + '/' + publishproject + '.csproj --configuration Release --no-restore --output app/' + publishproject
+              sh 'dotnet publish src/' + publishproject + '/' + publishproject + '.csproj --configuration Release --no-restore --output app/' + publishproject
             }
         }
-        stage('Build docker image') {
+        stage('build docker image') {
             steps{
                 script {
                     dockerImage = docker.build(dockerimagename + ':' + dockerimagetag, 'app/' + publishproject)
                 }
             }
         }
-        stage('Deploy docker image') {
+        stage('deploy docker image') {
             steps{
                 script {
                   docker.withRegistry( '', dockercredentials ) {
