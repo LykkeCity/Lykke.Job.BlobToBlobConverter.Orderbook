@@ -1,6 +1,11 @@
 pipeline {
     agent any
     stages {
+        environment {
+            dockerimage = 'lykkedev/lykke-job-blobtoblobconverter-orderbook'
+            dockerimagetag = 'dev'
+            dockercredentials = 'lykkedev'
+        }
         stage('build') {
             steps {
                 sh 'dotnet build --configuration Release'
@@ -14,6 +19,22 @@ pipeline {
         stage('publish') {
             steps {
               sh 'dotnet publish --configuration Release --no-restore --output app'
+            }
+        }
+        stage(‘Building docker image’) {
+            steps{
+                script {
+                    dockerImage = docker.build dockerimage + ':' + dockerimagetag
+                }
+            }
+        }
+        stage(‘Deploy Image’) {
+            steps{
+                script {
+                  docker.withRegistry( '', dockercredentials ) {
+                      dockerImage.push()
+                  }
+                }
             }
         }
     }
