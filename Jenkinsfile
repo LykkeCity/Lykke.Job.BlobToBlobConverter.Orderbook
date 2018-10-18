@@ -21,14 +21,14 @@ pipeline {
               sh 'dotnet publish --configuration Release --no-restore --output app'
             }
         }
-        stage(‘Building docker image’) {
+        stage('Build docker image') {
             steps{
                 script {
                     dockerImage = docker.build dockerimage + ':' + dockerimagetag
                 }
             }
         }
-        stage(‘Deploy Image’) {
+        stage('Deploy docker image') {
             steps{
                 script {
                   docker.withRegistry( '', dockercredentials ) {
