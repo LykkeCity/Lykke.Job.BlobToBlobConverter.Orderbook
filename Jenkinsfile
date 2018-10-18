@@ -1,6 +1,6 @@
 pipeline {
     environment {
-            dockerimage = 'lykkedev/lykke-job-blobtoblobconverter-orderbook'
+            dockerimagename = 'lykkedev/lykke-job-blobtoblobconverter-orderbook'
             dockerimagetag = 'dev'
             dockercredentials = 'lykkedev'
         }
@@ -25,7 +25,7 @@ pipeline {
         stage('Build docker image') {
             steps{
                 script {
-                    dockerImage = docker.build dockerimage + ':' + dockerimagetag
+                    dockerImage = docker.build dockerimagename + ':' + dockerimagetag
                 }
             }
         }
