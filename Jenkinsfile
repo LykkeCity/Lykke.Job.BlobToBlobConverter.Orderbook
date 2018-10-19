@@ -40,7 +40,7 @@ pipeline {
         }
         stage("docker image cleanup") {
             steps{
-                sh "dotnet rmi ${env.dockerimagename}:${env.dockerimagetag}"
+                sh "docker rmi ${env.dockerimagename}:${env.dockerimagetag}"
             }
         }
     }
