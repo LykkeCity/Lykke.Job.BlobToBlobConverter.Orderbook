@@ -5,7 +5,7 @@ pipeline {
             dockercredentials = "lykkedev"
             publishproject = "Lykke.Job.BlobToBlobConverter.Orderbook"
         }
-    agent any
+    agent {label 'agent1'}
     stages {
         stage("build") {
             steps {
