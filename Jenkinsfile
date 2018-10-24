@@ -1,5 +1,7 @@
 pipeline {
     environment {
+            scmUrl = "https://github.com/LykkeCity/Lykke.Job.BlobToBlobConverter.Orderbook"
+            branch = "dev"
             dockerimagename = "lykkedev/lykke-job-blobtoblobconverter-orderbook"
             dockerimagetag = "dev"
             dockercredentials = "lykkedev"
@@ -7,6 +9,11 @@ pipeline {
         }
     agent {label 'agent1'}
     stages {
+        stage('checkout git') {
+            steps {
+                git branch: branch, url: scmUrl
+            }
+        }
         stage("build") {
             steps {
                 sh "dotnet build --configuration Release"
