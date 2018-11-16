@@ -4,7 +4,7 @@ using Lykke.Common;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Job.BlobToBlobConverter.Orderbook.Core.Services;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.SwaggerGen;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Lykke.Job.BlobToBlobConverter.Orderbook.Controllers
 {
