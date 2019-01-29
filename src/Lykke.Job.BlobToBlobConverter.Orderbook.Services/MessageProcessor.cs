@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Common;
 using Common.Log;
@@ -7,19 +9,17 @@ using Lykke.Job.BlobToBlobConverter.Common.Abstractions;
 using Lykke.Job.BlobToBlobConverter.Common.Helpers;
 using Lykke.Job.BlobToBlobConverter.Orderbook.Core.Domain.InputModels;
 using Lykke.Job.BlobToBlobConverter.Orderbook.Core.Domain.OutputModels;
-using System;
-using System.Threading.Tasks;
 
 namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
 {
     [UsedImplicitly]
     public class MessageProcessor : IMessageProcessor, IMessageTypeResolver
     {
-        private const int _maxBatchCount = 1000000;
+        private const int _maxBatchCount = 500000;
 
         private readonly ILog _log;
+        private readonly Dictionary<string, Dictionary<int, string>> _minutesDict = new Dictionary<string, Dictionary<int, string>>();
 
-        private List<string> _list;
         private Func<string, List<string>, Task> _messagesHandler;
 
         public MessageProcessor(ILog log)
@@ -29,30 +29,32 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
 
         public void StartBlobProcessing(Func<string, List<string>, Task> messagesHandler)
         {
-            _list = new List<string>();
             _messagesHandler = messagesHandler;
         }
 
         public async Task FinishBlobProcessingAsync()
         {
-            if (_list.Count > 0)
-                await _messagesHandler(StructureBuilder.MainContainer, _list);
+            if (_minutesDict.Count > 0)
+            {
+                await _messagesHandler(StructureBuilder.MainContainer, _minutesDict.SelectMany(i => i.Value.Values).ToList());
+                _minutesDict.Clear();
+            }
         }
 
         public async Task ProcessMessageAsync(object obj)
         {
             var orderbook = obj as InOrderBook;
 
-            AddConvertedMessage(orderbook, _list);
+            AddConvertedMessage(orderbook);
 
-            if (_list.Count >= _maxBatchCount)
+            if (_minutesDict.Count >= _maxBatchCount)
             {
-                await _messagesHandler(StructureBuilder.MainContainer, _list);
-                _list.Clear();
+                await _messagesHandler(StructureBuilder.MainContainer, _minutesDict.SelectMany(i => i.Value.Values).ToList());
+                _minutesDict.Clear();
             }
         }
 
-        private void AddConvertedMessage(InOrderBook book, List<string> list)
+        private void AddConvertedMessage(InOrderBook book)
         {
             if (!book.IsValid())
                 _log.WriteWarning(nameof(MessageProcessor), nameof(Convert), $"Orderbook {book.ToJson()} is invalid!");
@@ -70,12 +72,21 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                 Timestamp = DateTimeConverter.Convert(book.Timestamp),
                 BestPrice = bestPrice,
             };
-            list.Add(orderbook.GetValuesString());
+            if (!_minutesDict.ContainsKey(book.AssetPair))
+                _minutesDict.Add(book.AssetPair, new Dictionary<int, string>());
+            var assetPairDict = _minutesDict[book.AssetPair];
+            int minuteKey = GetMinuteKey(book.Timestamp);
+            assetPairDict[minuteKey] = orderbook.GetValuesString();
         }
 
         public Task<Type> ResolveMessageTypeAsync()
         {
             return Task.FromResult(typeof(InOrderBook));
+        }
+
+        private int GetMinuteKey(DateTime time)
+        {
+            return (((time.Year * 13 + time.Month) * 32 + time.Day) * 25 + time.Hour) * 61 + time.Minute;
         }
     }
 }
