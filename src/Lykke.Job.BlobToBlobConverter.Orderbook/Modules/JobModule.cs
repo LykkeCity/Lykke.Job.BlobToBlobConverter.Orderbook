@@ -1,12 +1,11 @@
 ﻿using Autofac;
 using Common.Log;
-using Lykke.Common;
 using Lykke.Job.BlobToBlobConverter.Common.Abstractions;
 using Lykke.Job.BlobToBlobConverter.Common.Services;
 using Lykke.Job.BlobToBlobConverter.Orderbook.Core.Services;
-using Lykke.Job.BlobToBlobConverter.Orderbook.Settings;
-using Lykke.Job.BlobToBlobConverter.Orderbook.Services;
 using Lykke.Job.BlobToBlobConverter.Orderbook.PeriodicalHandlers;
+using Lykke.Job.BlobToBlobConverter.Orderbook.Services;
+using Lykke.Job.BlobToBlobConverter.Orderbook.Settings;
 
 namespace Lykke.Job.BlobToBlobConverter.Orderbook.Modules
 {
@@ -39,8 +38,6 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Modules
                 .As<IShutdownManager>()
                 .AutoActivate()
                 .SingleInstance();
-
-            builder.RegisterResourcesMonitoring(_log);
 
             builder.RegisterType<BlobReader>()
                 .As<IBlobReader>()

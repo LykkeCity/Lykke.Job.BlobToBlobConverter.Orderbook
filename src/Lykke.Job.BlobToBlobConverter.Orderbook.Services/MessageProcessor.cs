@@ -43,19 +43,8 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
 
         public async Task ProcessMessageAsync(object obj)
         {
-            var orderbook = obj as InOrderBook;
+            var book = obj as InOrderBook;
 
-            AddConvertedMessage(orderbook);
-
-            if (_minutesDict.Count >= _maxBatchCount)
-            {
-                await _messagesHandler(StructureBuilder.MainContainer, _minutesDict.SelectMany(i => i.Value.Values).ToList());
-                _minutesDict.Clear();
-            }
-        }
-
-        private void AddConvertedMessage(InOrderBook book)
-        {
             if (!book.IsValid())
                 _log.WriteWarning(nameof(MessageProcessor), nameof(Convert), $"Orderbook {book.ToJson()} is invalid!");
 
@@ -76,6 +65,19 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                 _minutesDict.Add(book.AssetPair, new Dictionary<int, string>());
             var assetPairDict = _minutesDict[book.AssetPair];
             int minuteKey = GetMinuteKey(book.Timestamp);
+
+            var allCount = _minutesDict.Sum(i => i.Value.Values.Sum(k => k.Length));
+            if (allCount >= _maxBatchCount)
+            {
+                var allOtherMinutesItems = new List<string>();
+                foreach (var pair in _minutesDict)
+                {
+                    allOtherMinutesItems.AddRange(pair.Value.Keys.Where(k => k != minuteKey).Select(i => pair.Value[i]));
+                }
+                await _messagesHandler(StructureBuilder.MainContainer, allOtherMinutesItems);
+                _minutesDict.Clear();
+            }
+
             assetPairDict[minuteKey] = orderbook.GetValuesString();
         }
 
