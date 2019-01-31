@@ -72,10 +72,16 @@ namespace Lykke.Job.BlobToBlobConverter.Orderbook.Services
                 var allOtherMinutesItems = new List<string>();
                 foreach (var pair in _minutesDict)
                 {
-                    allOtherMinutesItems.AddRange(pair.Value.Keys.Where(k => k != minuteKey).Select(i => pair.Value[i]));
+                    foreach (var key in pair.Value.Keys.ToArray())
+                    {
+                        if (key == minuteKey)
+                            continue;
+
+                        allOtherMinutesItems.Add(pair.Value[key]);
+                        pair.Value.Remove(key);
+                    }
                 }
                 await _messagesHandler(StructureBuilder.MainContainer, allOtherMinutesItems);
-                _minutesDict.Clear();
             }
 
             assetPairDict[minuteKey] = orderbook.GetValuesString();
